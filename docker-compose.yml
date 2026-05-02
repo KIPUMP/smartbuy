@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: smartbuy-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: smartbuy
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: 0000
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

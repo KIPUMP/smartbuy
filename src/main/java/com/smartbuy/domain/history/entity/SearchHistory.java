@@ -17,10 +17,10 @@ public class SearchHistory extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 300)
+    @Column(nullable = false, length = 500)
     private String originalQuery;
 
-    @Column(length = 300)
+    @Column(length = 500)
     private String refinedQuery;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -32,6 +32,12 @@ public class SearchHistory extends BaseTimeEntity {
         this.originalQuery = originalQuery;
         this.refinedQuery = refinedQuery;
         this.user = user;
+    }
+
+    @Builder
+    public SearchHistory(String originalQuery, String refinedQuery) {
+        this.originalQuery = originalQuery;
+        this.refinedQuery = refinedQuery;
     }
 
 }
