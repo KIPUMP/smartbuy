@@ -1,0 +1,21 @@
+package com.smartbuy.web.controller;
+
+import com.smartbuy.domain.search.dto.SearchRequestDto;
+import com.smartbuy.domain.search.dto.SearchResponseDto;
+import com.smartbuy.domain.search.service.SearchService;
+import com.smartbuy.global.response.ApiResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/api/search")
+@RequiredArgsConstructor
+public class SearchController {
+    private final SearchService searchService;
+
+    public ApiResponse<SearchResponseDto> search(@RequestBody SearchRequestDto request) {
+        return ApiResponse.ok(searchService.search(request.getQuery()));
+    }
+}
