@@ -1,5 +1,8 @@
 package com.smartbuy.global.exception;
-
+/*
+*  역할 : 프로젝트에서 사용하는 커스텀 예외 부모 클래스
+*  기능 : 모든 비즈니스 예외가 공통적으로 code, message를 가지게 함
+* */
 import lombok.Getter;
 
 @Getter
