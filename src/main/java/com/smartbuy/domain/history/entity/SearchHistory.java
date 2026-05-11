@@ -20,7 +20,7 @@ public class SearchHistory extends BaseTimeEntity {
     @Column(nullable = false, length = 500)
     private String originalQuery;
 
-    @Column(length = 500)
+    @Column(nullable = false, length = 500)
     private String refinedQuery;
 
     @ManyToOne(fetch = FetchType.LAZY)

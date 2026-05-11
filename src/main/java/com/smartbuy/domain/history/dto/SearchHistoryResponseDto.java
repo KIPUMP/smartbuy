@@ -19,7 +19,7 @@ public class SearchHistoryResponseDto {
                 .id(history.getId())
                 .originalQuery(history.getOriginalQuery())
                 .refinedQuery(history.getRefinedQuery())
-                .createdAt(history.getCreateAt())
+                .createdAt(history.getCreatedAt())
                 .build();
     }
 }
