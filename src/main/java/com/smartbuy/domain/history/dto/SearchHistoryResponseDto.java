@@ -6,13 +6,13 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 
-@Getter
 @Builder
-public class SearchHistoryResponseDto {
-    private Long id;
-    private String originalQuery;
-    private String refinedQuery;
-    private LocalDateTime createdAt;
+public record SearchHistoryResponseDto (Long id,
+                                        String originalQuery,
+                                        String refinedQuery,
+                                        String lowestProductName,
+                                        Integer lowestPrice,
+                                        LocalDateTime createdAt) {
 
     public static SearchHistoryResponseDto from(SearchHistory history){
         return SearchHistoryResponseDto.builder()

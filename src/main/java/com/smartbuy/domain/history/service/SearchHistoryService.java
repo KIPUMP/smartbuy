@@ -16,12 +16,18 @@ public class SearchHistoryService {
     private final SearchHistoryRepository searchHistoryRepository;
 
     @Transactional
-    public void saveHistory(String originalQuery, String refinedQuery) {
-        SearchHistory history = SearchHistory.builder()
-                .originalQuery(originalQuery)
-                .refinedQuery(refinedQuery)
-                .build();
-        searchHistoryRepository.save(history);
+    public void saveHistory(String originalQuery,
+                            String refinedQuery,
+                            String lowestProductName,
+                            Integer lowestPrice) {
+        searchHistoryRepository.save(
+                SearchHistory.builder()
+                        .originalQuery(originalQuery)
+                        .refinedQuery(refinedQuery)
+                        .lowestProductName(lowestProductName)
+                        .lowestPrice(lowestPrice)
+                        .build()
+        );
     }
 
     public List<SearchHistoryResponseDto> getRecentHistories() {

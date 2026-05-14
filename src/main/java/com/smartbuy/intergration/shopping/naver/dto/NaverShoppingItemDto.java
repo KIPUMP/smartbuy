@@ -10,5 +10,5 @@ public class NaverShoppingItemDto {
     private String link;
     private String image;
     private String lprice;
-    private String mailName;
+    private String mallName;
 }

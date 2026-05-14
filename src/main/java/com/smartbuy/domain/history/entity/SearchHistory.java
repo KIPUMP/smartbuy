@@ -23,21 +23,29 @@ public class SearchHistory extends BaseTimeEntity {
     @Column(nullable = false, length = 500)
     private String refinedQuery;
 
+    @Column(nullable = false, length = 1000)
+    private String lowestProductName;
+
+    @Column(nullable = false)
+    private Integer lowestPrice;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
     @Builder
-    public SearchHistory(String originalQuery, String refinedQuery, User user) {
+    public SearchHistory(
+            String originalQuery,
+            String refinedQuery,
+            String lowestProductName,
+            Integer lowestPrice,
+            User user
+    ) {
         this.originalQuery = originalQuery;
         this.refinedQuery = refinedQuery;
+        this.lowestProductName = lowestProductName;
+        this.lowestPrice = lowestPrice;
         this.user = user;
-    }
-
-    @Builder
-    public SearchHistory(String originalQuery, String refinedQuery) {
-        this.originalQuery = originalQuery;
-        this.refinedQuery = refinedQuery;
     }
 
 }
