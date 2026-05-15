@@ -7,5 +7,5 @@ import lombok.Getter;
 @Builder
 public class AiSearchQueryDto {
     private String originalQuery;
-    private String refinedQuery;
+    private String keyword;
 }

@@ -16,15 +16,17 @@ import java.util.List;
 public class SearchController {
     private final SearchService searchService;
 
-    @PostMapping
-    public ApiResponse<SearchResponseDto> search(@RequestBody SearchRequestDto request) {
-        return ApiResponse.ok(searchService.search(request.getQuery()));
-    }
-
     @GetMapping
-    public ApiResponse<List<SearchProductResponseDto>> search(
-            @RequestParam String keyword
+    public ApiResponse<SearchResponseDto> search(
+            @RequestParam String keyword,
+            @RequestParam(required = false) Integer minPrice,
+            @RequestParam(required = false) Integer maxPrice,
+            @RequestParam(defaultValue = "priceAsc") String sort,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
     ) {
-        return ApiResponse.ok(searchService.searchLowestPriceProducts(keyword));
+        return ApiResponse.ok(
+                searchService.search(keyword, minPrice, maxPrice, sort, page, size)
+        );
     }
 }

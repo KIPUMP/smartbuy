@@ -8,7 +8,15 @@ import java.util.List;
 @Getter
 @Builder
 public class SearchResponseDto {
-    private String originalQuery;
-    private String refinedQuery;
-    private List<SearchResultDto> products;
+    private String keyword;
+
+    private String refinedKeyword;
+
+    private int page;
+
+    private int size;
+
+    private int totalCount;
+
+    private List<SearchProductResponseDto> products;
 }

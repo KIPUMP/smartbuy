@@ -8,10 +8,10 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AiSearchService {
 
-    public AiSearchQueryDto refinedQuery(String userQuery) {
+    public AiSearchQueryDto refineSearchKeyword(String userQuery) {
         return AiSearchQueryDto.builder()
                 .originalQuery(userQuery)
-                .refinedQuery(userQuery)
+                .keyword(userQuery)
                 .build();
     }
 }

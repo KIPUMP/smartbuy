@@ -5,7 +5,6 @@ import com.smartbuy.ai.service.AiSearchService;
 import com.smartbuy.domain.history.service.SearchHistoryService;
 import com.smartbuy.domain.search.dto.SearchProductResponseDto;
 import com.smartbuy.domain.search.dto.SearchResponseDto;
-import com.smartbuy.domain.search.dto.SearchResultDto;
 import com.smartbuy.intergration.shopping.naver.client.NaverShoppingClient;
 import com.smartbuy.intergration.shopping.naver.dto.NaverShoppingItemDto;
 import com.smartbuy.intergration.shopping.naver.dto.NaverShoppingResponseDto;
@@ -19,77 +18,148 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class SearchService {
+
     private final NaverShoppingClient naverShoppingClient;
     private final AiSearchService aiSearchService;
     private final SearchHistoryService searchHistoryService;
 
-    public List<SearchProductResponseDto> searchLowestPriceProducts(String keyword) {
-        NaverShoppingResponseDto response = naverShoppingClient.search(keyword);
+    public SearchResponseDto search(
+            String keyword,
+            Integer minPrice,
+            Integer maxPrice,
+            String sort,
+            int page,
+            int size
+    ) {
+        AiSearchQueryDto aiSearchQuery = aiSearchService.refineSearchKeyword(keyword);
+        String refinedKeyword = aiSearchQuery.getKeyword();
 
-        List<NaverShoppingItemDto> items = response.getItems();
+        NaverShoppingResponseDto response =
+                naverShoppingClient.search(refinedKeyword);
 
-        return items.stream()
+        List<SearchProductResponseDto> products = response.getItems().stream()
                 .filter(item -> parsePrice(item.getLprice()) > 0)
-                .map(item -> SearchProductResponseDto.builder()
-                        .title(removeHtmlTags(item.getTitle()))
-                        .link(item.getLink())
-                        .image(item.getImage())
-                        .lprice(parsePrice(item.getLprice()))
-                        .mallName(item.getMallName())
-                        .build())
+                .map(this::toProductResponse)
                 .collect(Collectors.toMap(
-                        SearchProductResponseDto::getTitle,
+                        product -> normalizeTitle(product.getTitle()),
                         product -> product,
                         (existing, replacement) -> existing
                 ))
                 .values()
                 .stream()
-                .sorted(Comparator.comparingInt(SearchProductResponseDto::getLprice))
-                .limit(5)
-                .toList();
-    }
-
-    public SearchResponseDto search(String query) {
-        NaverShoppingResponseDto response = naverShoppingClient.search(query);
-        AiSearchQueryDto aiResult = aiSearchService.refinedQuery(query);
-
-        List<SearchResultDto> products = response.getItems().stream()
-                .map(this::toSearchResultDto)
                 .toList();
 
-        SearchResultDto lowestProduct = products.stream()
-                .min(Comparator.comparingInt(SearchResultDto::getPrice))
-                .orElseThrow(() -> new IllegalArgumentException("검색 결과가 없습니다."));
+        List<SearchProductResponseDto> filteredProducts =
+                filterByPrice(products, minPrice, maxPrice);
 
-        searchHistoryService.saveHistory(
-                aiResult.getOriginalQuery(),
-                aiResult.getRefinedQuery(),
-                lowestProduct.getTitle(),
-                lowestProduct.getPrice()
-        );
+        List<SearchProductResponseDto> sortedProducts =
+                sortProducts(filteredProducts, sort);
+
+        List<SearchProductResponseDto> pagedProducts =
+                paginate(sortedProducts, page, size);
+
+        SearchProductResponseDto lowestProduct = sortedProducts.isEmpty()
+                ? null
+                : sortedProducts.get(0);
+
+        if (lowestProduct != null) {
+            searchHistoryService.saveHistory(
+                    keyword,
+                    refinedKeyword,
+                    lowestProduct.getTitle(),
+                    lowestProduct.getPrice()
+            );
+        }
 
         return SearchResponseDto.builder()
-                .originalQuery(aiResult.getOriginalQuery())
-                .refinedQuery(aiResult.getRefinedQuery())
-                .products(products)
+                .keyword(keyword)
+                .refinedKeyword(refinedKeyword)
+                .page(page)
+                .size(size)
+                .totalCount(sortedProducts.size())
+                .products(pagedProducts)
                 .build();
     }
 
-    private SearchResultDto toSearchResultDto(NaverShoppingItemDto item) {
-        return SearchResultDto.builder()
-                .title(item.getTitle())
-                .price(Integer.parseInt(item.getLprice()))
-                .mailName(item.getMallName())
-                .imageUrl(item.getImage())
-                .productUrl(item.getLink())
+    private SearchProductResponseDto toProductResponse(NaverShoppingItemDto item) {
+        return SearchProductResponseDto.builder()
+                .title(cleanTitle(item.getTitle()))
+                .link(item.getLink())
+                .image(item.getImage())
+                .price(parsePrice(item.getLprice()))
+                .mallName(item.getMallName())
                 .build();
     }
 
-    private String removeHtmlTags(String title){
-        if(title == null){
+    private List<SearchProductResponseDto> filterByPrice(
+            List<SearchProductResponseDto> products,
+            Integer minPrice,
+            Integer maxPrice
+    ) {
+        return products.stream()
+                .filter(product -> minPrice == null || product.getPrice() >= minPrice)
+                .filter(product -> maxPrice == null || product.getPrice() <= maxPrice)
+                .toList();
+    }
+
+    private List<SearchProductResponseDto> sortProducts(
+            List<SearchProductResponseDto> products,
+            String sort
+    ) {
+        return switch (sort) {
+            case "priceDesc" -> products.stream()
+                    .sorted(Comparator.comparingInt(SearchProductResponseDto::getPrice).reversed())
+                    .toList();
+
+            case "mall" -> products.stream()
+                    .sorted(Comparator.comparing(SearchProductResponseDto::getMallName))
+                    .toList();
+
+            case "priceAsc" -> products.stream()
+                    .sorted(Comparator.comparingInt(SearchProductResponseDto::getPrice))
+                    .toList();
+
+            default -> products.stream()
+                    .sorted(Comparator.comparingInt(SearchProductResponseDto::getPrice))
+                    .toList();
+        };
+    }
+
+    private List<SearchProductResponseDto> paginate(
+            List<SearchProductResponseDto> products,
+            int page,
+            int size
+    ) {
+        int start = page * size;
+        int end = Math.min(start + size, products.size());
+
+        if (start >= products.size()) {
+            return List.of();
+        }
+
+        return products.subList(start, end);
+    }
+
+    private String cleanTitle(String title) {
+        if (title == null) {
             return "";
         }
-        return title.replaceAll("<[^>]*>", "");
+
+        return title
+                .replaceAll("<[^>]*>", "")
+                .replace("&quot;", "\"")
+                .replace("&amp;", "&");
+    }
+
+    private String normalizeTitle(String title) {
+        if (title == null) {
+            return "";
+        }
+
+        return title
+                .replaceAll("<[^>]*>", "")
+                .replaceAll("[^가-힣a-zA-Z0-9]", "")
+                .toLowerCase();
     }
 
     private int parsePrice(String price) {
