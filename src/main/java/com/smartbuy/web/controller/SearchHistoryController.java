@@ -1,6 +1,7 @@
 package com.smartbuy.web.controller;
 
 import com.smartbuy.domain.history.dto.SearchHistoryResponseDto;
+import com.smartbuy.domain.history.dto.SearchRankingResponseDto;
 import com.smartbuy.domain.history.service.SearchHistoryService;
 import com.smartbuy.global.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -19,5 +20,10 @@ public class SearchHistoryController {
     @GetMapping("/recent")
     public ApiResponse<List<SearchHistoryResponseDto>> getRecentHistories() {
         return ApiResponse.ok(searchHistoryService.getRecentHistories());
+    }
+
+    @GetMapping("/ranking")
+    public ApiResponse<List<SearchRankingResponseDto>> getSearchRanking() {
+        return ApiResponse.ok(searchHistoryService.getSearchRanking());
     }
 }

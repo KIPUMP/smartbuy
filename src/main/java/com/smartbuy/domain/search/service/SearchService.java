@@ -9,8 +9,10 @@ import com.smartbuy.intergration.shopping.naver.client.NaverShoppingClient;
 import com.smartbuy.intergration.shopping.naver.dto.NaverShoppingItemDto;
 import com.smartbuy.intergration.shopping.naver.dto.NaverShoppingResponseDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,6 +24,7 @@ public class SearchService {
     private final NaverShoppingClient naverShoppingClient;
     private final AiSearchService aiSearchService;
     private final SearchHistoryService searchHistoryService;
+    private final RedisTemplate<String, SearchResponseDto> redisTemplate;
 
     public SearchResponseDto search(
             String keyword,
@@ -31,6 +34,13 @@ public class SearchService {
             int page,
             int size
     ) {
+        String cacheKey = createCacheKey(keyword, minPrice, maxPrice, sort, page, size);
+
+        SearchResponseDto cachedResponse = redisTemplate.opsForValue().get(cacheKey);
+        if (cachedResponse != null) {
+            return cachedResponse;
+        }
+
         AiSearchQueryDto aiSearchQuery = aiSearchService.refineSearchKeyword(keyword);
         String refinedKeyword = aiSearchQuery.getKeyword();
 
@@ -58,9 +68,9 @@ public class SearchService {
         List<SearchProductResponseDto> pagedProducts =
                 paginate(sortedProducts, page, size);
 
-        SearchProductResponseDto lowestProduct = sortedProducts.isEmpty()
-                ? null
-                : sortedProducts.get(0);
+        SearchProductResponseDto lowestProduct = filteredProducts.stream()
+                .min(Comparator.comparingInt(SearchProductResponseDto::getPrice))
+                .orElse(null);
 
         if (lowestProduct != null) {
             searchHistoryService.saveHistory(
@@ -71,14 +81,43 @@ public class SearchService {
             );
         }
 
-        return SearchResponseDto.builder()
+       String recommendation = generateRecommendation(sortedProducts);
+
+        SearchResponseDto responseDto = SearchResponseDto.builder()
                 .keyword(keyword)
                 .refinedKeyword(refinedKeyword)
+                .recommendation(recommendation)
                 .page(page)
                 .size(size)
                 .totalCount(sortedProducts.size())
                 .products(pagedProducts)
                 .build();
+
+        redisTemplate.opsForValue().set(
+                cacheKey,
+                responseDto,
+                Duration.ofMinutes(3)
+        );
+
+        return responseDto;
+    }
+
+    private String generateRecommendation(List<SearchProductResponseDto> products) {
+        if (products == null || products.isEmpty()) {
+            return "검색 조건에 맞는 상품이 없어 추천 상품을 제공하기 어렵습니다.";
+        }
+        SearchProductResponseDto lowestProduct = products.stream()
+                .min(Comparator.comparingInt(SearchProductResponseDto::getPrice))
+                .orElse(null);
+
+        if (lowestProduct == null) {
+            return "추천 상품을 찾을 수 없습니다.";
+        }
+        return String.format(
+                "현재 검색 결과 기준으로는 '%s' 상품이 %d원으로 가장 저렴하여 가성비 기준 추천할 수 있습니다.",
+                lowestProduct.getTitle(),
+                lowestProduct.getPrice()
+        );
     }
 
     private SearchProductResponseDto toProductResponse(NaverShoppingItemDto item) {
@@ -172,5 +211,22 @@ public class SearchService {
         } catch (NumberFormatException e) {
             return 0;
         }
+    }
+
+    private String createCacheKey(
+            String keyword,
+            Integer minPrice,
+            Integer maxPrice,
+            String sort,
+            int page,
+            int size
+    ) {
+        return "search:" +
+                keyword + ":" +
+                minPrice + ":" +
+                maxPrice + ":" +
+                sort + ":" +
+                page + ":" +
+                size;
     }
 }

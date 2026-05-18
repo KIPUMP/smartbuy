@@ -1,6 +1,7 @@
 package com.smartbuy.domain.history.service;
 
 import com.smartbuy.domain.history.dto.SearchHistoryResponseDto;
+import com.smartbuy.domain.history.dto.SearchRankingResponseDto;
 import com.smartbuy.domain.history.entity.SearchHistory;
 import com.smartbuy.domain.history.repository.SearchHistoryRepository;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +38,12 @@ public class SearchHistoryService {
                 .toList();
     }
 
+    public List<SearchRankingResponseDto> getSearchRanking() {
+        return searchHistoryRepository.findSearchRanking()
+                .stream()
+                .limit(10)
+                .toList();
+    }
 
 
 }
