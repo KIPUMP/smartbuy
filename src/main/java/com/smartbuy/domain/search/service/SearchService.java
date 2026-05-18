@@ -81,7 +81,7 @@ public class SearchService {
             );
         }
 
-       String recommendation = generateRecommendation(sortedProducts);
+       String recommendation = aiSearchService.generateShoppingRecommendation(keyword, pagedProducts);
 
         SearchResponseDto responseDto = SearchResponseDto.builder()
                 .keyword(keyword)
@@ -100,24 +100,6 @@ public class SearchService {
         );
 
         return responseDto;
-    }
-
-    private String generateRecommendation(List<SearchProductResponseDto> products) {
-        if (products == null || products.isEmpty()) {
-            return "검색 조건에 맞는 상품이 없어 추천 상품을 제공하기 어렵습니다.";
-        }
-        SearchProductResponseDto lowestProduct = products.stream()
-                .min(Comparator.comparingInt(SearchProductResponseDto::getPrice))
-                .orElse(null);
-
-        if (lowestProduct == null) {
-            return "추천 상품을 찾을 수 없습니다.";
-        }
-        return String.format(
-                "현재 검색 결과 기준으로는 '%s' 상품이 %d원으로 가장 저렴하여 가성비 기준 추천할 수 있습니다.",
-                lowestProduct.getTitle(),
-                lowestProduct.getPrice()
-        );
     }
 
     private SearchProductResponseDto toProductResponse(NaverShoppingItemDto item) {

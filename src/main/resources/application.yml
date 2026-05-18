@@ -17,6 +17,11 @@ spring :
         show_sql: true
     open-in-view: false
 
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
 server:
   address: 127.0.0.1
   port: 8080
@@ -26,3 +31,8 @@ naver:
     base-url: https://openapi.naver.com/v1/search/shop.json
     client-id: XvIRqt8ulHiAxveLf6uO
     client-secret: ke73aMBqMX
+
+openai:
+  api-key: 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
+  model: gpt-4o-mini
+  base-url: https://api.openai.com/v1/chat/completions
