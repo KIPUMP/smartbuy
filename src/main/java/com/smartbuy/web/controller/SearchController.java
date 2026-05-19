@@ -1,8 +1,6 @@
 package com.smartbuy.web.controller;
 
-import com.smartbuy.domain.history.repository.SearchHistoryRepository;
-import com.smartbuy.domain.search.dto.SearchProductResponseDto;
-import com.smartbuy.domain.search.dto.SearchRequestDto;
+
 import com.smartbuy.domain.search.dto.SearchResponseDto;
 import com.smartbuy.domain.search.service.SearchService;
 import com.smartbuy.domain.user.entity.User;
@@ -11,8 +9,6 @@ import com.smartbuy.global.response.ApiResponse;
 import com.smartbuy.global.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/search")
