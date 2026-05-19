@@ -1,4 +1,4 @@
-package com.smartbuy.intergration.shopping.naver.dto;
+package com.smartbuy.integration.shopping.naver.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

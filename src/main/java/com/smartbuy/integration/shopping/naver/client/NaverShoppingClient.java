@@ -1,6 +1,6 @@
-package com.smartbuy.intergration.shopping.naver.client;
+package com.smartbuy.integration.shopping.naver.client;
 
-import com.smartbuy.intergration.shopping.naver.dto.NaverShoppingResponseDto;
+import com.smartbuy.integration.shopping.naver.dto.NaverShoppingResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

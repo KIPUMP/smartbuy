@@ -5,6 +5,7 @@ import com.smartbuy.ai.service.AiSearchService;
 import com.smartbuy.domain.history.service.SearchHistoryService;
 import com.smartbuy.domain.search.dto.SearchProductResponseDto;
 import com.smartbuy.domain.search.dto.SearchResponseDto;
+import com.smartbuy.domain.user.entity.User;
 import com.smartbuy.integration.shopping.naver.client.NaverShoppingClient;
 import com.smartbuy.integration.shopping.naver.dto.NaverShoppingItemDto;
 import com.smartbuy.integration.shopping.naver.dto.NaverShoppingResponseDto;
@@ -32,7 +33,8 @@ public class SearchService {
             Integer maxPrice,
             String sort,
             int page,
-            int size
+            int size,
+            User user
     ) {
         String cacheKey = createCacheKey(keyword, minPrice, maxPrice, sort, page, size);
 
@@ -77,7 +79,8 @@ public class SearchService {
                     keyword,
                     refinedKeyword,
                     lowestProduct.getTitle(),
-                    lowestProduct.getPrice()
+                    lowestProduct.getPrice(),
+                    user
             );
         }
 
