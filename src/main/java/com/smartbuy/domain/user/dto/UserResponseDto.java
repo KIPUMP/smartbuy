@@ -9,13 +9,13 @@ import lombok.Getter;
 public class UserResponseDto {
     private Long id;
     private String email;
-    private String name;
+    private String nickname;
 
     public static UserResponseDto from(User user) {
         return UserResponseDto.builder().id(user.getId())
                 .id(user.getId())
                 .email(user.getEmail())
-                .name(user.getName())
+                .nickname(user.getNickname())
                 .build();
     }
 }
