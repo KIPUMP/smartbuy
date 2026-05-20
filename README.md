@@ -33,7 +33,7 @@
 
 ## 3-1. 전체 구성
 
-![smartbuy_아키텍쳐.png](..%2FUsers%2Fuser%2FPictures%2FScreenshots%2Fsmartbuy_%EC%95%84%ED%82%A4%ED%85%8D%EC%B3%90.png)
+<img width="441" height="557" alt="smartbuy_아키텍쳐" src="https://github.com/user-attachments/assets/a5af21ae-e947-492b-a861-7176fcf98fc6" />
 
 ---
 
@@ -393,7 +393,8 @@ Content-Type: application/json
 
 초기 핵심 테이블은 아래와 같습니다.
 
-![smarybuy_ERD.png](..%2FUsers%2Fuser%2FPictures%2FScreenshots%2Fsmarybuy_ERD.png)
+<img width="950" height="371" alt="smarybuy_ERD" src="https://github.com/user-attachments/assets/41849af3-d22b-4a1c-a045-1e6e3d2e187c" />
+
 
 ### users
 사용자 기본 정보 저장
