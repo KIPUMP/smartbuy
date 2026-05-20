@@ -2,6 +2,7 @@ HELP.md
 .gradle
 docker-compose.yml
 build/
+
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
@@ -15,6 +16,7 @@ build/
 .springBeans
 .sts4-cache
 bin/
+
 !**/src/main/**/bin/
 !**/src/test/**/bin/
 
@@ -24,9 +26,11 @@ bin/
 *.iml
 *.ipr
 out/
+
 !**/src/main/**/out/
 !**/src/test/**/out/
-!**/src/main/resources/application.yml
+
+/src/main/resources/application.yml
 
 ### NetBeans ###
 /nbproject/private/
@@ -37,5 +41,5 @@ out/
 
 ### VS Code ###
 .vscode/
-settings.gradle
 
+settings.gradle
