@@ -12,9 +12,8 @@
 - **한줄 소개**: 자연어 기반 상품 검색과 최저가 탐색을 지원하는 AI 쇼핑 도우미
 - **목표**:
   - 사용자의 모호한 자연어 요청을 AI가 이해할 수 있도록 처리
-  - 쇼핑 API와 연동하여 실제 상품 데이터를 조회
-  - 가격, 판매처, 상품명 등을 기준으로 최적의 구매 선택지를 제공
-  - 추후 검색 이력, 관심 상품, 개인화 추천 기능으로 확장 가능하도록 구조 설계
+  - 네이버 쇼핑 API와 연동하여 실제 상품 가격, 판매처, 상품명 데이터를 조회
+  - 검색 이력 기반 개인화 추천 기능을 통해 최적의 구매 선택지를 제공
 
 ---
 
@@ -34,26 +33,7 @@
 
 ## 3-1. 전체 구성
 
-```text
-[ Client (Web / Browser) ]
-          |
-          v
-[ Spring Boot Server ]
-   ├─ Controller Layer
-   ├─ Search Service Layer
-   ├─ AI Service Layer
-   ├─ External Shopping Integration Layer
-   ├─ Persistence Layer (JPA)
-   └─ Cache Layer (Redis)
-          |
-          +--> [ OpenAI / LLM ]
-          |
-          +--> [ Naver Shopping API ]
-          |
-          +--> [ PostgreSQL ]
-          |
-          +--> [ Redis ]
-```
+![smartbuy_아키텍쳐.png](..%2FUsers%2Fuser%2FPictures%2FScreenshots%2Fsmartbuy_%EC%95%84%ED%82%A4%ED%85%8D%EC%B3%90.png)
 
 ---
 
@@ -62,11 +42,11 @@
 1. 사용자가 웹 화면에서 자연어로 상품 검색 요청을 입력합니다.
 2. Controller가 HTTP 요청을 수신합니다.
 3. SearchService가 요청을 받아 전체 검색 흐름을 제어합니다.
-4. AiSearchService가 사용자 문장을 분석하여 검색용 질의로 정제합니다.
-5. Shopping Client가 외부 쇼핑 API를 호출합니다.
+4. AiSearchService(OpenAI API)가 사용자 문장을 분석하여 검색용 질의로 정제합니다.
+5. 정제된 키워드를 네이버 쇼핑 API를 호출합니다.
 6. 응답 데이터를 서비스 내부 형식으로 변환합니다.
-7. 필요 시 검색 이력을 DB에 저장하고 Redis에 캐싱합니다.
-8. 가공된 상품 결과를 사용자에게 반환합니다.
+7. 필요 시 검색 이력을 PostgreDB에 저장하고 자주쓰는 검석/세션은 Redis에 캐싱합니다.
+8. 가공된 상품 결과를 JSON 형태로 사용자에게 반환합니다.
 
 ---
 
@@ -88,15 +68,10 @@ com.smartbuy
 │       ├── HomeController.java
 │       ├── SearchController.java
 │       └── SearchHistoryController.java
-│       └── ProductController.java
+│       └── AuthController.java
 │
 ├── domain
-│   ├── product
-│   │   ├── entity
-│   │   ├── repository
-│   │   ├── service
-│   │   └── dto
-│   │
+│   │ 
 │   ├── search
 │   │   ├── service
 │   │   └── dto
@@ -143,7 +118,6 @@ com.smartbuy
 ### domain
 서비스의 핵심 비즈니스 영역입니다.
 - `user`: 사용자 정보 관리
-- `product`: 상품 정보 관리
 - `search`: 검색 기능의 핵심 흐름 담당
 - `history`: 검색 이력 저장 및 조회
 
@@ -419,11 +393,10 @@ Content-Type: application/json
 
 초기 핵심 테이블은 아래와 같습니다.
 
+![smarybuy_ERD.png](..%2FUsers%2Fuser%2FPictures%2FScreenshots%2Fsmarybuy_ERD.png)
+
 ### users
 사용자 기본 정보 저장
-
-### products
-상품 기본 정보 저장
 
 ### search_histories
 사용자의 검색 원문, 정제 검색어, 검색 시간을 저장
