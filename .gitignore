@@ -1,5 +1,6 @@
 HELP.md
 .gradle
+docker-compose.yml
 build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
@@ -25,6 +26,7 @@ bin/
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
+!**/src/main/resources/application.yml
 
 ### NetBeans ###
 /nbproject/private/
@@ -35,3 +37,5 @@ out/
 
 ### VS Code ###
 .vscode/
+settings.gradle
+
