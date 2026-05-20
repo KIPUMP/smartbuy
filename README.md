@@ -33,7 +33,7 @@
 
 ## 3-1. 전체 구성
 
-<img width="441" height="557" alt="smartbuy_아키텍쳐" src="https://github.com/user-attachments/assets/a5af21ae-e947-492b-a861-7176fcf98fc6" />
+<img width="749" height="956" alt="smartbuy_아키텍쳐" src="https://github.com/user-attachments/assets/047da565-4255-490f-80eb-b5f46459a130" />
 
 ---
 
