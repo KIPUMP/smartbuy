@@ -8,8 +8,8 @@ services:
       - "5432:5432"
     environment:
       POSTGRES_DB: smartbuy
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: 0000
+      POSTGRES_USER: ${user}
+      POSTGRES_PASSWORD: ${user-password}
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
